@@ -8,7 +8,18 @@ export async function getTypes(req: AuthenticatedRequest, res: Response)
   try {
     const ticketType = await ticketService.getTicketTypes();
     return res.status(httpStatus.OK).send(ticketType);
-  } catch (error) {
+  } catch  {
     return res.sendStatus(httpStatus.BAD_REQUEST);
+  }
+}
+export async function getTickets(req: AuthenticatedRequest, res: Response)
+{
+  const { userId }=req;
+  try {
+    const ticket = await ticketService.getTicketByUserId(userId);
+    return res.status(httpStatus.OK).send(ticket);
+  } catch (error)
+  {
+    return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
