@@ -1,7 +1,8 @@
-import { notFoundError, unauthorizedError } from "@/errors";
+import { notFoundError, requestError, unauthorizedError } from "@/errors";
 import { Payment } from "@prisma/client";
 import ticketsRepository from "@/repositories/tickets-repository";
 import paymentRepository from "@/repositories/payments-repository";
+import { CardData } from "@/protocols";
 
 async function getPaymentByTicketId(ticketId: number, enrollmentId: number): Promise<Payment>
 {
@@ -21,6 +22,19 @@ async function getPaymentByTicketId(ticketId: number, enrollmentId: number): Pro
   return payment;
 }
 
-const paymentService = { getPaymentByTicketId };
+async function postNewPayment(cardData: CardData, ticketId: number, enrollmentId: number)
+{
+  const  checkTicket = await ticketsRepository.findTicketById(ticketId); 
+  if (!checkTicket) throw notFoundError();
+  if(checkTicket.enrollmentId!=enrollmentId)
+  {
+    throw unauthorizedError();
+  }
+  const payment = paymentRepository.createPayment(ticketId, cardData.issuer, String(cardData.number).slice(-4), checkTicket.TicketType.price);
+  await ticketsRepository.updateStatus(ticketId);
+  return payment;
+}
+
+const paymentService = { getPaymentByTicketId, postNewPayment };
 
 export default paymentService;

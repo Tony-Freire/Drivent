@@ -9,7 +9,19 @@ async function findPaymentByTicketId(ticketId: number) {
     },
   });
 }
+async function createPayment(ticketId: number, cardIssuer: string, cardLastDigits: string, value: number) 
+{
+  return await prisma.payment.create({
+    data:
+    {
+      ticketId,
+      cardIssuer,
+      cardLastDigits,
+      value
+    },
+  });
+}
 
-const paymentRepository = { findPaymentByTicketId };
+const paymentRepository = { findPaymentByTicketId, createPayment };
 
-export default paymentRepository;
+export default paymentRepository; 
