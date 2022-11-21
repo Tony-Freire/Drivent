@@ -9,6 +9,7 @@ loadEnv();
 
 import { handleApplicationErrors } from "@/middlewares";
 import { usersRouter, authenticationRouter, eventsRouter, enrollmentsRouter, ticketsRouter } from "@/routers";
+import { paymentsRoutes } from "./routers/payments-router";
 
 const app = express();
 app
@@ -20,6 +21,7 @@ app
   .use("/event", eventsRouter)
   .use("/enrollments", enrollmentsRouter)
   .use("/tickets", ticketsRouter)
+  .use("/payments", paymentsRoutes)
   .use(handleApplicationErrors);
 
 export function init(): Promise<Express> {
