@@ -18,6 +18,11 @@ Ticket &
 
   return ticket;
 }
+async function postNewTicket(enrollmentId: number, ticketTypeId: number): Promise<Ticket & 
+{TicketType: TicketType;}> {
+  const ticket = await ticketsRepository.createNewTicket(enrollmentId, ticketTypeId);
+  return ticket;
+}
 
-const ticketService = { getTicketTypes, getTicketByUserId };
+const ticketService = { getTicketTypes, getTicketByUserId, postNewTicket };
 export default ticketService;

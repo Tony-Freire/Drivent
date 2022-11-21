@@ -1,4 +1,5 @@
 import { prisma } from "@/config";
+import { TicketStatus } from "@prisma/client";
 
 async function findTypes() {
   return await prisma.ticketType.findMany();
@@ -16,7 +17,17 @@ async function findTicketsByUserId(userId: number) {
     },
   });
 }
+async function createNewTicket(enrollmentId: number, ticketTypeId: number) 
+{
+  return await prisma.ticket.create({
+    data: {
+      ticketTypeId,
+      enrollmentId,
+      status: TicketStatus.RESERVED,
+    },
+    include: { TicketType: true }
+  });
+}
+const ticketsRepository ={ findTypes, findTicketsByUserId, createNewTicket };
 
-const ticketsRepository ={ findTypes, findTicketsByUserId };
-
-export default ticketsRepository;
+export default ticketsRepository;   
