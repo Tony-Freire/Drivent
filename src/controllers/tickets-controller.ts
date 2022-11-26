@@ -1,41 +1,46 @@
 import { AuthenticatedRequest } from "@/middlewares";
-import enrollmentsService from "@/services/enrollments-service";
 import ticketService from "@/services/tickets-service";
 import { Response } from "express";
 import httpStatus from "http-status";
 
-export async function getTypes(req: AuthenticatedRequest, res: Response) 
-{
+export async function getTicketTypes(req: AuthenticatedRequest, res: Response) {
   try {
-    const ticketType = await ticketService.getTicketTypes();
-    return res.status(httpStatus.OK).send(ticketType);
-  } catch  {
-    return res.sendStatus(httpStatus.BAD_REQUEST);
+    const ticketTypes = await ticketService.getTicketTypes();
+
+    return res.status(httpStatus.OK).send(ticketTypes);
+  } catch (error) {
+    return res.sendStatus(httpStatus.NO_CONTENT);
   }
 }
-export async function getTickets(req: AuthenticatedRequest, res: Response)
-{
-  const { userId }=req;
+
+export async function getTickets(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+
   try {
-    const ticket = await ticketService.getTicketByUserId(userId);
-    return res.status(httpStatus.OK).send(ticket);
-  } catch (error)
-  {
+    const ticketTypes = await ticketService.getTicketByUserId(userId);
+
+    return res.status(httpStatus.OK).send(ticketTypes);
+  } catch (error) {
     return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
-export async function postTicket(req: AuthenticatedRequest, res: Response) {
-  const { userId }=req; 
+
+export async function createTicket(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+
+  //TODO validação do JOI
   const { ticketTypeId } = req.body;
-  try {
-    const enrollment = await enrollmentsService.getOneWithAddressByUserId(userId);
-    const newticket = await ticketService.postNewTicket(enrollment.id, ticketTypeId);
-    return res.status(httpStatus.CREATED).send(newticket);
-  } catch (error)
-  {
-    if (error.name === "NotFoundError") {
-      return res.sendStatus(httpStatus.NOT_FOUND);
-    }
+
+  if (!ticketTypeId) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
+
+  try {
+    const ticketTypes = await ticketService.createTicket(userId, ticketTypeId);
+
+    return res.status(httpStatus.CREATED).send(ticketTypes);
+  } catch (error) {
+    return res.sendStatus(httpStatus.NOT_FOUND);
+  }
 }
+

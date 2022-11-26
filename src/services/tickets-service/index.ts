@@ -1,28 +1,53 @@
 import { notFoundError } from "@/errors";
-import ticketsRepository from "@/repositories/tickets-repository";
-import { TicketType, Ticket } from "@prisma/client";
+import ticketRepository from "@/repositories/ticket-repository";
+import enrollmentRepository from "@/repositories/enrollment-repository";
+import { TicketStatus } from "@prisma/client";
 
-async function getTicketTypes(): Promise<TicketType[]>
-{
-  return await ticketsRepository.findTypes();
+async function getTicketTypes() {
+  const ticketTypes = await ticketRepository.findTicketTypes();
+
+  if (!ticketTypes) {
+    throw notFoundError();
+  }
+  return ticketTypes;
 }
 
-async function getTicketByUserId(userId: number): Promise<
-Ticket & 
-{TicketType: TicketType;}>
-{
-  const ticket = await ticketsRepository.findTicketsByUserId(userId);
+async function getTicketByUserId(userId: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) {
+    throw notFoundError();
+  }
+  const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
   if (!ticket) {
     throw notFoundError();
   }
 
   return ticket;
 }
-async function postNewTicket(enrollmentId: number, ticketTypeId: number): Promise<Ticket & 
-{TicketType: TicketType;}> {
-  const ticket = await ticketsRepository.createNewTicket(enrollmentId, ticketTypeId);
+
+async function createTicket(userId: number, ticketTypeId: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) {
+    throw notFoundError();
+  }
+
+  const ticketData = {
+    ticketTypeId,
+    enrollmentId: enrollment.id,
+    status: TicketStatus.RESERVED
+  };
+
+  await ticketRepository.createTicket(ticketData);
+
+  const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
+
   return ticket;
 }
 
-const ticketService = { getTicketTypes, getTicketByUserId, postNewTicket };
+const ticketService = {
+  getTicketTypes,
+  getTicketByUserId,
+  createTicket
+};
+
 export default ticketService;
