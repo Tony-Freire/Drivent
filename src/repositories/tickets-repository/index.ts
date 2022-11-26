@@ -28,6 +28,31 @@ async function createNewTicket(enrollmentId: number, ticketTypeId: number)
     include: { TicketType: true }
   });
 }
-const ticketsRepository ={ findTypes, findTicketsByUserId, createNewTicket };
+async function findTicketById(id: number) 
+{
+  return await prisma.ticket.findFirst(
+    {
+      where:
+      {
+        id,
+      },
+      include: {
+        TicketType: true,
+      },
+    });
+}
+async function updateStatus(id: number) 
+{
+  return prisma.ticket.update({
+    where:
+    {
+      id
+    },
+    data: {
+      status: TicketStatus.PAID
+    }
+  });
+}
+const ticketsRepository ={ findTypes, findTicketsByUserId, createNewTicket, findTicketById, updateStatus };
 
 export default ticketsRepository;   
