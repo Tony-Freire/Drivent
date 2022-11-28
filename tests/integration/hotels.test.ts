@@ -1,5 +1,4 @@
 import app, { init } from "@/app";
-import { prisma } from "@/config";
 import faker from "@faker-js/faker";
 import * as jwt from "jsonwebtoken";
 import supertest from "supertest";
@@ -11,11 +10,10 @@ import {
   createUser,
   createTicketType,
   createTicket,
-  createPayment,
-  generateCreditCardData,
   createHotel,
   createHotelRoom
 } from "../factories";
+import { any } from "joi";
 
 beforeAll(async () => {
   await init();
@@ -86,7 +84,7 @@ describe("GET /hotels", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const isRemote = true;
       const includesHotel = false;
-      const ticketType = await createTicketType(isRemote, includesHotel);
+      const ticketType = await createTicketType(includesHotel, isRemote);
       await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
       const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
@@ -100,21 +98,24 @@ describe("GET /hotels", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const isRemote = false;
       const includesHotel = true;
-      const ticketType = await createTicketType(isRemote, includesHotel);
+      const ticketType = await createTicketType(includesHotel, isRemote);
       await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createHotel();
 
       const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
         
       expect(response.status).toBe(httpStatus.OK);
       expect(response.body).toEqual(
-        expect.arrayContaining([
+        expect.objectContaining([
           expect.objectContaining({
             id: expect.any(Number),
             name: expect.any(String),
             image: expect.any(String),
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
-          })]));
+          }),
+        ]),
+      );
     });
   });
 });
