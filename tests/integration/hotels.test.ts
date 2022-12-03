@@ -1,6 +1,8 @@
 import app, { init } from "@/app";
+import { prisma } from "@/config";
 import faker from "@faker-js/faker";
 import { TicketStatus } from "@prisma/client";
+import e from "express";
 import httpStatus from "http-status";
 import * as jwt from "jsonwebtoken";
 import supertest from "supertest";
@@ -31,6 +33,7 @@ const server = supertest(app);
 describe("GET /hotels", () => {
   it("should respond with status 401 if no token is given", async () => {
     const response = await server.get("/hotels");
+
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
 

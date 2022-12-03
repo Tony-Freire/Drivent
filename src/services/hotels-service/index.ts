@@ -24,7 +24,6 @@ async function getHotels(userId: number) {
   const hotels = await hotelRepository.findHotels();
   return hotels;
 }
-
 async function getHotelsWithRooms(userId: number, hotelId: number) {
   await listHotels(userId);
   const hotel = await hotelRepository.findRoomsByHotelId(hotelId);
