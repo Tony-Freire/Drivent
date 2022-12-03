@@ -248,3 +248,4 @@ describe("GET /hotels/:hotelId", () => {
     });
   });
 });
+
