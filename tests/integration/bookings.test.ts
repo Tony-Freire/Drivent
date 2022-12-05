@@ -71,22 +71,19 @@ describe("GET /booking", () => {
       const hotel = await createHotel();
       const room = await createRoomWithHotelId(hotel.id);
       const booking = await createBooking(user.id, room.id);
-      const response = await server.get("/booking").set("Authorization", `Bearer ${token}`);
-      expect(response.status).toBe(httpStatus.OK);
             
+      const response = await server.get("/booking").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
       expect(response.body).toEqual({
-        id: expect.any(Number),
-        userId: booking.userId,
-        roomId: booking.roomId,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
+        id: booking.id,
         Room: {
-          id: expect.any(Number),
+          id: room.id,
           name: room.name,
           capacity: room.capacity,
           hotelId: room.hotelId,
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
+          createdAt: room.createdAt.toISOString(),
+          updatedAt: room.updatedAt.toISOString(),
         },
       });
     });
